@@ -33,11 +33,12 @@ import { IMenuItem } from "siyuan/types";
 
 import HelloExample from "@/hello.svelte";
 import SettingExample from "@/setting-example.svelte";
-
-import { SettingUtils } from "./libs/setting-utils";
+import ProfileSettings from "@/profile-settings.svelte";
 import { svelteDialog } from "./libs/dialog";
+import { lsNotebooks } from "./api";
 
 const STORAGE_NAME = "menu-config";
+const PROFILES_STORAGE_NAME = "notebook-profiles";
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
 
@@ -46,7 +47,10 @@ export default class PluginSample extends Plugin {
     private custom: () => Custom;
     private isMobile: boolean;
     private blockIconEventBindThis = this.blockIconEvent.bind(this);
-    private settingUtils: SettingUtils;
+    private notebooks: any[] = [];
+    private profiles: {[key: string]: string[]} = {};
+    private currentProfile: string = null;
+    private appliedStyleElement: HTMLStyleElement = null;
 
 
     updateProtyleToolbar(toolbar: Array<string | IMenuItem>) {
@@ -77,6 +81,9 @@ export default class PluginSample extends Plugin {
 </symbol>
 <symbol id="iconSaving" viewBox="0 0 32 32">
 <path d="M20 13.333c0-0.733 0.6-1.333 1.333-1.333s1.333 0.6 1.333 1.333c0 0.733-0.6 1.333-1.333 1.333s-1.333-0.6-1.333-1.333zM10.667 12h6.667v-2.667h-6.667v2.667zM29.333 10v9.293l-3.76 1.253-2.24 7.453h-7.333v-2.667h-2.667v2.667h-7.333c0 0-3.333-11.28-3.333-15.333s3.28-7.333 7.333-7.333h6.667c1.213-1.613 3.147-2.667 5.333-2.667 1.107 0 2 0.893 2 2 0 0.28-0.053 0.533-0.16 0.773-0.187 0.453-0.347 0.973-0.427 1.533l3.027 3.027h2.893zM26.667 12.667h-1.333l-4.667-4.667c0-0.867 0.12-1.72 0.347-2.547-1.293 0.333-2.347 1.293-2.787 2.547h-8.227c-2.573 0-4.667 2.093-4.667 4.667 0 2.507 1.627 8.867 2.68 12.667h2.653v-2.667h8v2.667h2.68l2.067-6.867 3.253-1.093v-4.707z"></path>
+</symbol>
+<symbol id="iconProfiles" viewBox="0 0 32 32">
+<path d="M28 4H4c-1.1 0-2 .9-2 2v20c0 1.1.9 2 2 2h24c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 26V6h24v20H4zm4-14h16v2H8v-2zm0 4h16v2H8v-2zm0 4h10v2H8v-2z"/>
 </symbol>`);
 
         let tabDiv = document.createElement("div");
@@ -168,137 +175,8 @@ export default class PluginSample extends Plugin {
             }
         });
 
-        this.settingUtils = new SettingUtils({
-            plugin: this, name: STORAGE_NAME
-        });
-        this.settingUtils.addItem({
-            key: "Input",
-            value: "",
-            type: "textinput",
-            title: "Readonly text",
-            description: "Input description",
-            action: {
-                // Called when focus is lost and content changes
-                callback: () => {
-                    // Return data and save it in real time
-                    let value = this.settingUtils.takeAndSave("Input");
-                    console.log(value);
-                }
-            }
-        });
-        this.settingUtils.addItem({
-            key: "InputArea",
-            value: "",
-            type: "textarea",
-            title: "Readonly text",
-            description: "Input description",
-            // Called when focus is lost and content changes
-            action: {
-                callback: () => {
-                    // Read data in real time
-                    let value = this.settingUtils.take("InputArea");
-                    console.log(value);
-                }
-            }
-        });
-        this.settingUtils.addItem({
-            key: "Check",
-            value: true,
-            type: "checkbox",
-            title: "Checkbox text",
-            description: "Check description",
-            action: {
-                callback: () => {
-                    // Return data and save it in real time
-                    let value = !this.settingUtils.get("Check");
-                    this.settingUtils.set("Check", value);
-                    console.log(value);
-                }
-            }
-        });
-        this.settingUtils.addItem({
-            key: "Select",
-            value: 1,
-            type: "select",
-            title: "Select",
-            description: "Select description",
-            options: {
-                1: "Option 1",
-                2: "Option 2"
-            },
-            action: {
-                callback: () => {
-                    // Read data in real time
-                    let value = this.settingUtils.take("Select");
-                    console.log(value);
-                }
-            }
-        });
-        this.settingUtils.addItem({
-            key: "Slider",
-            value: 50,
-            type: "slider",
-            title: "Slider text",
-            description: "Slider description",
-            direction: "column",
-            slider: {
-                min: 0,
-                max: 100,
-                step: 1,
-            },
-            action: {
-                callback: () => {
-                    // Read data in real time
-                    let value = this.settingUtils.take("Slider");
-                    console.log(value);
-                }
-            }
-        });
-        this.settingUtils.addItem({
-            key: "Btn",
-            value: "",
-            type: "button",
-            title: "Button",
-            description: "Button description",
-            button: {
-                label: "Button",
-                callback: () => {
-                    showMessage("Button clicked");
-                }
-            }
-        });
-        this.settingUtils.addItem({
-            key: "Custom Element",
-            value: "",
-            type: "custom",
-            direction: "row",
-            title: "Custom Element",
-            description: "Custom Element description",
-            //Any custom element must offer the following methods
-            createElement: (currentVal: any) => {
-                let div = document.createElement('div');
-                div.style.border = "1px solid var(--b3-theme-primary)";
-                div.contentEditable = "true";
-                div.textContent = currentVal;
-                return div;
-            },
-            getEleVal: (ele: HTMLElement) => {
-                return ele.textContent;
-            },
-            setEleVal: (ele: HTMLElement, val: any) => {
-                ele.textContent = val;
-            }
-        });
-        this.settingUtils.addItem({
-            key: "Hint",
-            value: "",
-            type: "hint",
-            title: this.i18n.hintTitle,
-            description: this.i18n.hintDesc,
-        });
-
         try {
-            this.settingUtils.load();
+            this.loadProfiles();
         } catch (error) {
             console.error("Error loading settings storage, probably empty config json:", error);
         }
@@ -336,9 +214,154 @@ export default class PluginSample extends Plugin {
         };
 
         console.log(this.i18n.helloPlugin);
+
     }
 
     onLayoutReady() {
+        lsNotebooks().then(result => {
+            console.log(result);
+            this.notebooks = result.notebooks;
+            /*data format:
+            {
+    "notebooks": [
+        {
+            "id": "20250106162719-pkorur1",
+            "name": "演示专用",
+            "icon": "",
+            "sort": 0,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20250109202222-g0r4f69",
+            "name": "空",
+            "icon": "",
+            "sort": 0,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20250109210007-5xizuog",
+            "name": "test1",
+            "icon": "",
+            "sort": 0,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20250127183132-boiy60i",
+            "name": "AutoModeDemo",
+            "icon": "",
+            "sort": 0,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20250304163859-48tp54t",
+            "name": "文档树测试",
+            "icon": "",
+            "sort": 0,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20250316215753-goo8tpo",
+            "name": "db_test",
+            "icon": "",
+            "sort": 0,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20240307172252-flhgzd4",
+            "name": "test",
+            "icon": "",
+            "sort": 1,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20240528234601-8urjy7t",
+            "name": "121212",
+            "icon": "",
+            "sort": 2,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20240528234614-sq8rksh",
+            "name": "fgyfgh",
+            "icon": "",
+            "sort": 3,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20240528234625-e0rrzk4",
+            "name": "456456456",
+            "icon": "",
+            "sort": 4,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20250105201719-suvxxvh",
+            "name": "I'm a father notebook",
+            "icon": "",
+            "sort": 5,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        },
+        {
+            "id": "20250105164252-zybt785",
+            "name": "doctreetest",
+            "icon": "",
+            "sort": 6,
+            "sortMode": 15,
+            "closed": false,
+            "newFlashcardCount": 0,
+            "dueFlashcardCount": 0,
+            "flashcardCount": 0
+        }
+    ]
+}*/
+        }).catch(error => {
+            console.error("Error fetching notebooks:", error);
+        });
+        
         const topBarElement = this.addTopBar({
             icon: "iconFace",
             title: this.i18n.addTopBarIcon,
@@ -360,6 +383,26 @@ export default class PluginSample extends Plugin {
             }
         });
 
+        const profileTopBarElement = this.addTopBar({
+            icon: "iconProfiles",
+            title: "Notebook Profiles",
+            position: "right",
+            callback: () => {
+                if (this.isMobile) {
+                    this.addProfileMenu();
+                } else {
+                    let rect = profileTopBarElement.getBoundingClientRect();
+                    if (rect.width === 0) {
+                        rect = document.querySelector("#barMore").getBoundingClientRect();
+                    }
+                    if (rect.width === 0) {
+                        rect = document.querySelector("#barPlugins").getBoundingClientRect();
+                    }
+                    this.addProfileMenu(rect);
+                }
+            }
+        });
+
         const statusIconTemp = document.createElement("template");
         statusIconTemp.innerHTML = `<div class="toolbar__item ariaLabel" aria-label="Remove plugin-sample Data">
     <svg>
@@ -377,16 +420,7 @@ export default class PluginSample extends Plugin {
         this.addStatusBar({
             element: statusIconTemp.content.firstElementChild as HTMLElement,
         });
-        // this.loadData(STORAGE_NAME);
-        this.settingUtils.load();
         console.log(`frontend: ${getFrontend()}; backend: ${getBackend()}`);
-
-        console.log(
-            "Official settings value calling example:\n" +
-            this.settingUtils.get("InputArea") + "\n" +
-            this.settingUtils.get("Slider") + "\n" +
-            this.settingUtils.get("Select") + "\n"
-        );
     }
 
     async onunload() {
@@ -412,21 +446,24 @@ export default class PluginSample extends Plugin {
         return options;
     }
     /**
-     * A custom setting pannel provided by svelte
+     * A custom setting panel for profile management
      */
     openSetting(): void {
         let dialog = new Dialog({
-            title: "SettingPannel",
-            content: `<div id="SettingPanel" style="height: 100%;"></div>`,
-            width: "800px",
+            title: "Notebook Profile Settings",
+            content: `<div id="ProfileSettingsPanel" style="height: 100%;"></div>`,
+            width: "90%",
+            height: "90%",
             destroyCallback: (options) => {
                 console.log("destroyCallback", options);
-                //You'd better destroy the component when the dialog is closed
-                pannel.$destroy();
+                panel.$destroy();
             }
         });
-        let pannel = new SettingExample({
-            target: dialog.element.querySelector("#SettingPanel"),
+        let panel = new ProfileSettings({
+            target: dialog.element.querySelector("#ProfileSettingsPanel"),
+            props: {
+                plugin: this
+            }
         });
     }
 
@@ -1007,5 +1044,123 @@ export default class PluginSample extends Plugin {
             return;
         }
         return editors[0];
+    }
+
+
+    applyProfile(profileName: string) {
+        this.currentProfile = profileName;
+        this.applyCSSForProfile(profileName);
+        this.saveProfiles();
+        
+        showMessage(`Profile "${profileName}" applied successfully`);
+    }
+
+    clearAppliedProfile() {
+        this.currentProfile = null;
+        if (this.appliedStyleElement) {
+            this.appliedStyleElement.remove();
+            this.appliedStyleElement = null;
+        }
+        this.saveProfiles();
+    }
+
+    showMessage(msg: string) {
+        showMessage(msg);
+    }
+
+    private applyCSSForProfile(profileName: string) {
+        if (this.appliedStyleElement) {
+            this.appliedStyleElement.remove();
+        }
+        
+        const hiddenNotebooks = this.profiles[profileName] || [];
+        if (hiddenNotebooks.length === 0) {
+            return;
+        }
+        
+        const cssRules = hiddenNotebooks.map(notebookId => 
+            `ul[data-url="${notebookId}"] { display: none !important; }`
+        ).join('\n');
+        
+        this.appliedStyleElement = document.createElement('style');
+        this.appliedStyleElement.textContent = cssRules;
+        document.head.appendChild(this.appliedStyleElement);
+    }
+
+    private loadProfiles() {
+        this.loadData(PROFILES_STORAGE_NAME).then(data => {
+            if (data) {
+                this.profiles = data.profiles || {};
+                this.currentProfile = data.currentProfile || null;
+                
+                if (this.currentProfile && this.profiles[this.currentProfile]) {
+                    this.applyCSSForProfile(this.currentProfile);
+                }
+            }
+        }).catch(error => {
+            console.error("Error loading profiles:", error);
+        });
+    }
+
+    private saveProfiles() {
+        const data = {
+            profiles: this.profiles,
+            currentProfile: this.currentProfile
+        };
+        this.saveData(PROFILES_STORAGE_NAME, data);
+    }
+
+    private addProfileMenu(rect?: DOMRect) {
+        const menu = new Menu("profileMenu", () => {
+            console.log("Profile menu closed");
+        });
+
+        if (Object.keys(this.profiles).length === 0) {
+            menu.addItem({
+                icon: "iconInfo",
+                label: "No profiles available",
+                type: "readonly"
+            });
+            menu.addSeparator();
+        } else {
+            menu.addItem({
+                icon: "iconClose",
+                label: "Clear Profile",
+                click: () => {
+                    this.clearAppliedProfile();
+                    showMessage("Profile cleared");
+                }
+            });
+            menu.addSeparator();
+
+            Object.keys(this.profiles).forEach(profileName => {
+                menu.addItem({
+                    icon: this.currentProfile === profileName ? "iconCheck" : "iconCircle",
+                    label: profileName,
+                    click: () => {
+                        this.applyProfile(profileName);
+                    }
+                });
+            });
+            menu.addSeparator();
+        }
+
+        menu.addItem({
+            icon: "iconSettings",
+            label: "Manage Profiles",
+            click: () => {
+                this.openSetting();
+            }
+        });
+
+        if (this.isMobile) {
+            menu.fullscreen();
+        } else {
+            menu.open({
+                x: rect.right,
+                y: rect.bottom,
+                isLeft: true,
+            });
+        }
     }
 }
