@@ -9,6 +9,7 @@
     let selectedProfile = null;
     let newProfileName = '';
     let isCreatingNew = false;
+    let editingProfileName = '';
     
     onMount(async () => {
         notebooks = plugin.notebooks || [];
@@ -27,12 +28,14 @@
         selectedProfile = profileName;
         isCreatingNew = false;
         newProfileName = '';
+        editingProfileName = profileName;
     }
     
     function startCreatingProfile() {
         isCreatingNew = true;
         selectedProfile = null;
         newProfileName = '';
+        editingProfileName = '';
     }
     
     function createProfile() {
@@ -113,12 +116,56 @@
         plugin.showMessage("Profile cleared");
     }
     
+    function updateProfileName() {
+        const newName = editingProfileName.trim();
+        if (!newName || newName === selectedProfile) return;
+        
+        if (profiles[newName]) {
+            plugin.showMessage("Profile name already exists");
+            editingProfileName = selectedProfile;
+            return;
+        }
+        
+        // Create new profile with new name and copy notebooks
+        const notebooks = profiles[selectedProfile] || [];
+        profiles[newName] = [...notebooks];
+        
+        // Update current profile if it was the one being renamed
+        if (currentProfile === selectedProfile) {
+            currentProfile = newName;
+            plugin.currentProfile = newName;
+        }
+        
+        // Delete old profile
+        delete profiles[selectedProfile];
+        
+        // Update selected profile
+        selectedProfile = newName;
+        
+        // Save changes
+        plugin.profiles = profiles;
+        plugin.saveProfiles();
+        
+        plugin.showMessage(`Profile renamed to "${newName}"`);
+        profiles = {...profiles}; // Trigger reactivity
+    }
+
     function handleKeydown(event) {
         if (event.key === 'Enter' && isCreatingNew) {
             createProfile();
         } else if (event.key === 'Escape') {
             isCreatingNew = false;
             newProfileName = '';
+        }
+    }
+
+    function handleProfileNameKeydown(event) {
+        if (event.key === 'Enter') {
+            updateProfileName();
+            event.target.blur();
+        } else if (event.key === 'Escape') {
+            editingProfileName = selectedProfile;
+            event.target.blur();
         }
     }
     
@@ -293,18 +340,29 @@
     
     .new-profile-form {
         display: flex;
+        flex-direction: column;
         gap: 8px;
-        align-items: center;
+    }
+
+    .new-profile-form-input {
+        width: 100%;
+    }
+
+    .new-profile-form-buttons {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
     }
     
     .form-input {
-        flex: 1;
         padding: 8px 12px;
         border: 1px solid var(--b3-theme-surface-lighter);
         border-radius: 4px;
         background: var(--b3-theme-surface-light);
         color: var(--b3-theme-on-surface);
         font-size: 14px;
+        box-sizing: border-box;
     }
     
     .form-input:focus {
@@ -432,6 +490,43 @@
         color: var(--b3-theme-error);
         border-color: var(--b3-theme-error);
     }
+
+    .profile-header-with-input {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .profile-name-input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .profile-name-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--b3-theme-on-surface);
+        opacity: 0.8;
+    }
+
+    .profile-name-input {
+        padding: 8px 12px;
+        border: 1px solid var(--b3-theme-surface-lighter);
+        border-radius: 4px;
+        background: var(--b3-theme-surface-light);
+        color: var(--b3-theme-on-surface);
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .profile-name-input:focus {
+        outline: none;
+        border-color: var(--b3-theme-primary);
+        box-shadow: 0 0 0 2px var(--b3-theme-primary-light);
+        background: var(--b3-theme-surface);
+    }
 </style>
 
 <div class="profile-settings">
@@ -492,17 +587,17 @@
             <div class="panel-footer">
             {#if isCreatingNew}
                 <div class="new-profile-form">
-                <input 
-                    type="text" 
-                    class="form-input" 
-                    bind:value={newProfileName} 
-                    placeholder="Profile name..."
-                    on:keydown={handleKeydown}
-                />
-                <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                    <button class="btn btn-small" on:click={createProfile}>Create</button>
-                    <button class="btn btn-secondary btn-small" on:click={() => {isCreatingNew = false; newProfileName = '';}}>Cancel</button>
-                </div>
+                    <input 
+                        type="text" 
+                        class="form-input new-profile-form-input" 
+                        bind:value={newProfileName} 
+                        placeholder="Profile name..."
+                        on:keydown={handleKeydown}
+                    />
+                    <div class="new-profile-form-buttons">
+                        <button class="btn btn-small" on:click={createProfile}>Create</button>
+                        <button class="btn btn-secondary btn-small" on:click={() => {isCreatingNew = false; newProfileName = '';}}>Cancel</button>
+                    </div>
                 </div>
             {:else}
                 <button class="btn" on:click={startCreatingProfile}>+ New Profile</button>
@@ -513,15 +608,27 @@
         <!-- Right Panel - Notebook Selector -->
         <div class="right-panel">
             <div class="panel-header">
-                <h3 class="panel-title">
-                    {#if selectedProfile}
-                        Notebooks to Hide - {selectedProfile}
-                    {:else if isCreatingNew}
-                        Select Notebooks for New Profile
-                    {:else}
-                        Select a Profile
-                    {/if}
-                </h3>
+                {#if selectedProfile}
+                    <div class="profile-header-with-input">
+                        <h3 class="panel-title">Notebooks to Hide</h3>
+                        <div class="profile-name-input-container">
+                            <label for="profile-name-input" class="profile-name-label">Profile Name:</label>
+                            <input 
+                                id="profile-name-input"
+                                type="text" 
+                                class="profile-name-input" 
+                                bind:value={editingProfileName}
+                                on:blur={updateProfileName}
+                                on:keydown={handleProfileNameKeydown}
+                                placeholder="Profile name..."
+                            />
+                        </div>
+                    </div>
+                {:else if isCreatingNew}
+                    <h3 class="panel-title">Select Notebooks for New Profile</h3>
+                {:else}
+                    <h3 class="panel-title">Select a Profile</h3>
+                {/if}
             </div>
             
             {#if selectedProfile || isCreatingNew}
