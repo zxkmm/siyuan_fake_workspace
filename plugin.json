@@ -1,8 +1,8 @@
 {
-  "name": "plugin-sample-vite-svelte",
-  "author": "frostime",
-  "url": "https://github.com/siyuan-note/plugin-sample-vite-svelte",
-  "version": "0.4.1",
+  "name": "siyuan_fake_workspace",
+  "author": "zxkmm",
+  "url": "https://github.com/siyuan-note/siyuan_fake_workspace",
+  "version": "0.0.1",
   "minAppVersion": "3.2.1",
   "backends": [
     "windows",
@@ -21,12 +21,12 @@
     "desktop-window"
   ],
   "displayName": {
-    "en_US": "Plugin sample with vite and svelte",
-    "zh_CN": "插件样例 vite + svelte 版"
+    "en_US": "Smart (Fake) Workspace",
+    "zh_CN": "智能（假）工作空间"
   },
   "description": {
-    "en_US": "SiYuan plugin sample with vite and svelte",
-    "zh_CN": "使用 vite 和 svelte 开发的思源插件样例"
+    "en_US": "Quickly show and hide notebooks",
+    "zh_CN": "快速的切换笔记本的显示和隐藏"
   },
   "readme": {
     "en_US": "README.md",
@@ -38,8 +38,13 @@
     ]
   },
   "keywords": [
-    "plugin",
-    "sample",
-    "插件样例"
+    "工作空间",
+    "Workspace",
+    "笔记本",
+    "Notebook",
+    "切换",
+    "Switch",
+    "隐藏",
+    "Hide"
   ]
 }

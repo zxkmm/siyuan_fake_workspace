@@ -24,7 +24,7 @@ const STORAGE_NAME = "menu-config";
 const PROFILES_STORAGE_NAME = "notebook-profiles";
 
 
-export default class PluginSample extends Plugin {
+export default class SiyuanFakeWorkspace extends Plugin {
 
     private custom: () => Custom;
     private isMobile: boolean;
