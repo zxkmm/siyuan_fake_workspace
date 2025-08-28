@@ -531,7 +531,13 @@
 
 <div class="profile-settings">
     <div class="header">
-        <h2>我没钱吃饭了，希望您可以给我捐款或者给我的github仓库点个星星，谢谢</h2>
+        <h2>
+            我没钱吃饭了，希望您可以
+            <a href="https://pipe.b3log.org/blogs/zxkmm/articles/2025/02/08/1738993480704" target="_blank" rel="noopener noreferrer">捐款</a>
+            或者给我的
+            <a href="https://github.com/zxkmm/siyuan_fake_workspace" target="_blank" rel="noopener noreferrer">GitHub仓库</a>
+            点个星星，谢谢
+        </h2>
         <!-- {#if currentProfile}
             <div class="current-profile-indicator">
                 <span>Active Profile: <strong>{currentProfile}</strong></span>
