@@ -58,7 +58,6 @@
         isCreatingNew = false;
         newProfileName = '';
         
-        plugin.showMessage(`Profile "${profileName}" created successfully`);
         
         profiles = {...profiles}; // Trigger reactivity
     }
@@ -107,7 +106,6 @@
     function applyProfile(profileName) {
         plugin.applyProfile(profileName);
         currentProfile = profileName;
-        plugin.showMessage(`Profile "${profileName}" applied`);
     }
     
     function clearProfile() {

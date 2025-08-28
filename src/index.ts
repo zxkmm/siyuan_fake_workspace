@@ -101,17 +101,6 @@ export default class SiyuanFakeWorkspace extends Plugin {
         <use xlink:href="#iconTrashcan"></use>
     </svg>
 </div>`;
-        statusIconTemp.content.firstElementChild.addEventListener("click", () => {
-            confirm("⚠️", this.i18n.confirmRemove.replace("${name}", this.name), () => {
-                this.removeData(STORAGE_NAME).then(() => {
-                    this.data[STORAGE_NAME] = { readonlyText: "Readonly" };
-                    showMessage(`[${this.name}]: ${this.i18n.removedData}`);
-                });
-            });
-        });
-        this.addStatusBar({
-            element: statusIconTemp.content.firstElementChild as HTMLElement,
-        });
     }
 
     async onunload() {
@@ -188,7 +177,6 @@ export default class SiyuanFakeWorkspace extends Plugin {
         this.applyCSSForProfile(profileName);
         this.saveProfiles();
 
-        showMessage(`Profile "${profileName}" applied successfully`);
     }
 
     clearAppliedProfile() {
@@ -264,7 +252,6 @@ export default class SiyuanFakeWorkspace extends Plugin {
                 label: "Clear Profile",
                 click: () => {
                     this.clearAppliedProfile();
-                    showMessage("Profile cleared");
                 }
             });
             menu.addSeparator();

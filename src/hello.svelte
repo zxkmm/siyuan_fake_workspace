@@ -32,7 +32,6 @@
     });
 
     onDestroy(() => {
-        showMessage("Hello panel closed");
         protyle?.destroy();
     });
 
