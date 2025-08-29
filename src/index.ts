@@ -78,7 +78,7 @@ export default class SiyuanFakeWorkspace extends Plugin {
         const profileTopBarElement = this.addTopBar({
             icon: "iconProfiles",
             title: "Notebook Profiles",
-            position: "right",
+            position: "left",
             callback: () => {
                 if (this.isMobile) {
                     this.addProfileMenu();
@@ -113,8 +113,8 @@ export default class SiyuanFakeWorkspace extends Plugin {
         let dialog = new Dialog({
             title: "Notebook Profile Settings",
             content: `<div id="ProfileSettingsPanel" style="height: 100%;"></div>`,
-            width: "90%",
-            height: "90%",
+            width: this.isMobile ? "100%" : "90%",
+            height: this.isMobile ? "100%" : "90%",
             destroyCallback: (options) => {
                 console.log("destroyCallback", options);
                 panel.$destroy();

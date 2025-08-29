@@ -525,15 +525,34 @@
         box-shadow: 0 0 0 2px var(--b3-theme-primary-light);
         background: var(--b3-theme-surface);
     }
+
+    .shining-text {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(90deg, #ffd700 0%, #000000 30%,#ffffff 50%, #00ff8c 100%);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shining 2.5s linear infinite;
+    }
+
+    @keyframes shining {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
 </style>
 
 <div class="profile-settings">
     <div class="header">
-        <h2>
+        <h2 class="shining-text">
             我没钱吃饭了，希望您可以
-            <a href="https://pipe.b3log.org/blogs/zxkmm/articles/2025/02/08/1738993480704" target="_blank" rel="noopener noreferrer">捐款</a>
+            <a href="https://pipe.b3log.org/blogs/zxkmm/articles/2025/02/08/1738993480704" target="_blank" rel="noopener noreferrer">[捐款]</a>
             或者给我的
-            <a href="https://github.com/zxkmm/siyuan_fake_workspace" target="_blank" rel="noopener noreferrer">GitHub仓库</a>
+            <a href="https://github.com/zxkmm/siyuan_fake_workspace" target="_blank" rel="noopener noreferrer">[GitHub仓库]</a>
             点个星星，谢谢
         </h2>
         <!-- {#if currentProfile}
