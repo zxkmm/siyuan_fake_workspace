@@ -1,8 +1,8 @@
 {
   "name": "siyuan_fake_workspace",
   "author": "zxkmm",
-  "url": "https://github.com/siyuan-note/siyuan_fake_workspace",
-  "version": "1.0.0",
+  "url": "https://github.com/zxkmm/siyuan_fake_workspace",
+  "version": "1.0.1",
   "minAppVersion": "3.2.1",
   "backends": [
     "windows",
@@ -22,11 +22,11 @@
   ],
   "displayName": {
     "en_US": "Smart (Fake) Workspace",
-    "zh_CN": "智能（假）工作空间"
+    "zh_CN": "智能多重工作空间"
   },
   "description": {
-    "en_US": "Quickly show and hide notebooks",
-    "zh_CN": "快速的切换笔记本的显示和隐藏"
+    "en_US": "Quickly show and hide notebooks without actually switching workspaces",
+    "zh_CN": "快速的切换笔记本的显示和隐藏而不用真正地切换工作空间"
   },
   "readme": {
     "en_US": "README.md",
