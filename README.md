@@ -7,3 +7,4 @@ Do not use this plugin for the purpose of protecting notes, as even when you are
 
 # Usage
 After installation, a button for this plugin will appear in the top bar. Through this button, you can quickly configure and activate different "pseudo workspaces."
+Also you can click the doctree menu icon or text to open same menu.
