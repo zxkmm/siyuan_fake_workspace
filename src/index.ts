@@ -95,6 +95,18 @@ export default class SiyuanFakeWorkspace extends Plugin {
             }
         });
 
+        // Add click listener for Doc Tree element
+        const docTreeElement = document.querySelector('.block__logo');
+        if (docTreeElement) {
+            docTreeElement.addEventListener('click', (event: MouseEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const clickedRect = (event.target as HTMLElement).getBoundingClientRect();
+                this.addProfileMenu(clickedRect);
+            });
+        }
+
         const statusIconTemp = document.createElement("template");
         statusIconTemp.innerHTML = `<div class="toolbar__item ariaLabel" aria-label="Remove plugin-sample Data">
     <svg>
