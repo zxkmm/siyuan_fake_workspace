@@ -18,7 +18,7 @@ import "./index.scss";
 
 import ProfileSettings from "./profile-settings.svelte";
 import { svelteDialog } from "./libs/dialog";
-import { lsNotebooks } from "./api";
+import { getPathByID, lsNotebooks } from "./api";
 
 const STORAGE_NAME = "menu-config";
 const PROFILES_STORAGE_NAME = "notebook-profiles";
@@ -67,6 +67,13 @@ export default class SiyuanFakeWorkspace extends Plugin {
     }
 
     onLayoutReady() {
+        getPathByID("20250831134930-h426j4n").then(result => {
+            console.log(result);
+        }).catch(error => {
+            console.error("Error fetching HPath:", error);
+        });
+
+        console.log(this.profiles);
         lsNotebooks().then(result => {
             console.log(result);
             this.notebooks = result.notebooks;
