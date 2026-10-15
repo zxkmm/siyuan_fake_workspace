@@ -2,7 +2,7 @@
   "name": "siyuan_fake_workspace",
   "author": "zxkmm",
   "url": "https://github.com/zxkmm/siyuan_fake_workspace",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minAppVersion": "3.2.1",
   "backends": [
     "windows",
@@ -29,12 +29,13 @@
     "zh_CN": "快速的切换笔记本的显示和隐藏而不用真正地切换工作空间"
   },
   "readme": {
+    "default": "README.md",
     "en_US": "README.md",
     "zh_CN": "README_zh_CN.md"
   },
   "funding": {
     "custom": [
-      ""
+      "https://pipe.b3log.org/blogs/zxkmm/articles/2025/02/08/1738993480704"
     ]
   },
   "keywords": [
